@@ -48,23 +48,23 @@ class PageEditor extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  const ToolbarIconButton(
+                  const TooltipIcon(
                     icon: Icons.create,
                     tooltip: 'New File',
                   ),
-                  const ToolbarIconButton(
+                  const TooltipIcon(
                     icon: Icons.file_open,
                     tooltip: 'Open File',
                   ),
-                  const ToolbarIconButton(
+                  const TooltipIcon(
                     icon: Icons.save,
                     tooltip: 'Save File',
                   ),
-                  const ToolbarIconButton(
-                    icon: Icons.security,
-                    tooltip: 'Set/Change Password',
+                  const TooltipIcon(
+                    icon: Icons.password,
+                    tooltip: 'Change Password',
                   ),
-                  const ToolbarIconButton(
+                  const TooltipIcon(
                     icon: Boxicons.bxs_face_mask,
                     tooltip: 'Mask Mode',
                   ),
@@ -73,27 +73,27 @@ class PageEditor extends StatelessWidget {
                     indent: 10,
                     color: Theme.of(context).colorScheme.barIconColor,
                   ),
-                  const ToolbarIconButton(
+                  const TooltipIcon(
                     icon: Icons.undo,
                     tooltip: 'Undo',
                   ),
-                  const ToolbarIconButton(
+                  const TooltipIcon(
                     icon: Icons.redo,
                     tooltip: 'Redo',
                   ),
-                  const ToolbarIconButton(
+                  const TooltipIcon(
                     icon: Icons.copy,
                     tooltip: 'Copy',
                   ),
-                  const ToolbarIconButton(
+                  const TooltipIcon(
                     icon: Icons.cut,
                     tooltip: 'Cut',
                   ),
-                  const ToolbarIconButton(
+                  const TooltipIcon(
                     icon: Icons.paste,
                     tooltip: 'Paste',
                   ),
-                  const ToolbarIconButton(
+                  const TooltipIcon(
                     icon: Icons.find_replace,
                     tooltip: 'Find Replace',
                   ),
@@ -102,15 +102,15 @@ class PageEditor extends StatelessWidget {
                     indent: 10,
                     color: Theme.of(context).colorScheme.barIconColor,
                   ),
-                  const ToolbarIconButton(
+                  const TooltipIcon(
                     icon: Icons.settings,
                     tooltip: 'Settings',
                   ),
-                  const ToolbarIconButton(
+                  const TooltipIcon(
                     icon: Icons.update,
                     tooltip: 'Check Update',
                   ),
-                  const ToolbarIconButton(
+                  const TooltipIcon(
                     icon: Boxicons.bxl_github,
                     tooltip: 'Github Repository',
                   ),
@@ -166,7 +166,9 @@ Map buttonOnTap(BuildContext context, String btnName) {
 
   switch (btnName) {
     case "New File":
-      {}
+      {
+        Navigator.pushNamed(context, '/pageCreateFile');
+      }
       break;
 
     case "Open File":
@@ -176,12 +178,10 @@ Map buttonOnTap(BuildContext context, String btnName) {
       break;
 
     case "Save File":
-      {
-        Navigator.pushNamed(context, '/pageSetPassword');
-      }
+      {}
       break;
 
-    case "Set/Change Password":
+    case "Change Password":
       {
         Navigator.pushNamed(context, '/pageChangePassword');
       }
@@ -220,8 +220,8 @@ Map buttonOnTap(BuildContext context, String btnName) {
 }
 
 // toolbar icon button
-class ToolbarIconButton extends StatelessWidget {
-  const ToolbarIconButton({
+class TooltipIcon extends StatelessWidget {
+  const TooltipIcon({
     required this.icon,
     required this.tooltip,
     Key? key,
@@ -254,8 +254,8 @@ class ToolbarIconButton extends StatelessWidget {
 }
 
 // toolbar text button
-class ToolbarTextButton extends StatelessWidget {
-  const ToolbarTextButton({
+class TooltipText extends StatelessWidget {
+  const TooltipText({
     required this.text,
     required this.tooltip,
     Key? key,
