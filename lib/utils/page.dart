@@ -1,7 +1,5 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 
 /// Close current screen and come back to previous screen.
 /// Mostly, Navigator.pop(context) should do the work.
