@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/page.dart';
+
 // settings page
 class PageSettings extends StatefulWidget {
   const PageSettings({Key? key}) : super(key: key);
@@ -20,34 +22,9 @@ class _PageSettingsState extends State<PageSettings> {
 
   String langSelected = "English";
 
-  List<DropdownMenuItem<String>> get defaultMaskModeDropdownItems {
-    List<DropdownMenuItem<String>> menuItems = [
-      DropdownMenuItem(child: Text("Mask"), value: "Mask"),
-      DropdownMenuItem(child: Text("UnMask"), value: "UnMask"),
-    ];
-    return menuItems;
-  }
+  bool autoMask = false;
 
-  String defaultMaskModeSelected = "UnMask";
-
-  List<DropdownMenuItem<String>> get lockScreenTimeDropdownItems {
-    List<DropdownMenuItem<String>> menuItems = [
-      DropdownMenuItem(child: Text("Never"), value: "Never"),
-      DropdownMenuItem(child: Text("1 Minute"), value: "1 Minute"),
-      DropdownMenuItem(child: Text("2 Minute"), value: "2 Minute"),
-      DropdownMenuItem(child: Text("3 Minute"), value: "3 Minute"),
-      DropdownMenuItem(child: Text("4 Minute"), value: "4 Minute"),
-      DropdownMenuItem(child: Text("5 Minute"), value: "5 Minute"),
-      DropdownMenuItem(child: Text("6 Minute"), value: "6 Minute"),
-      DropdownMenuItem(child: Text("7 Minute"), value: "7 Minute"),
-      DropdownMenuItem(child: Text("8 Minute"), value: "8 Minute"),
-      DropdownMenuItem(child: Text("9 Minute"), value: "9 Minute"),
-      DropdownMenuItem(child: Text("10 Minute"), value: "10 Minute"),
-    ];
-    return menuItems;
-  }
-
-  String lockScreenTimeSelected = "Never";
+  int lockScreenTime = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -62,74 +39,111 @@ class _PageSettingsState extends State<PageSettings> {
             Padding(
               padding: const EdgeInsets.only(
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "User Interface Language",
-                  style: TextStyle(color: Colors.black, fontSize: 14),
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Language",
+                    style: TextStyle(color: Colors.black, fontSize: 14),
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width / 2,
+                    child: DropdownButtonFormField(
+                        value: langSelected,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            langSelected = newValue!;
+                          });
+                        },
+                        items: langDropdownItems),
+                  ),
+                ],
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
-              child: DropdownButtonFormField(
-                  value: langSelected,
-                  //style: TextStyle(color: Colors.red,fontSize: 30),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      langSelected = newValue!;
-                    });
-                  },
-                  items: langDropdownItems),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                  left: 15.0, right: 15.0, top: 15, bottom: 0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Default Mask Mode",
-                  style: TextStyle(color: Colors.black, fontSize: 14),
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Mask When Start',
+                  ),
+                  Switch(
+                    value: autoMask,
+                    activeColor: Color(0xFF6200EE),
+                    onChanged: (bool newValue) {
+                      setState(() {
+                        autoMask = newValue;
+                      });
+                    },
+                  )
+                ],
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
-              child: DropdownButtonFormField(
-                  value: defaultMaskModeSelected,
-                  //style: TextStyle(color: Colors.red,fontSize: 30),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      defaultMaskModeSelected = newValue!;
-                    });
-                  },
-                  items: defaultMaskModeDropdownItems),
-            ),
-            const Padding(
-              padding:
-                  EdgeInsets.only(left: 15.0, right: 15.0, top: 15, bottom: 0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Lock Screen After No Operation",
-                  style: TextStyle(color: Colors.black, fontSize: 14),
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Lock File After Inactive",
+                    style: TextStyle(color: Colors.black, fontSize: 14),
+                  ),
+                  SizedBox( // SizedBox is used to control size of `Slider` component.
+                      width: MediaQuery.of(context).size.width / 2,
+                      child: Column(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.symmetric(horizontal: 20),
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: List.generate(
+                                      11,
+                                      (index) => Text(index == 0
+                                          ? 'Never'
+                                          : (index == 10 ? '$index' : ''))),
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: List.generate(
+                                    11,
+                                    (index) => SizedBox(
+                                      height: 8,
+                                      child: VerticalDivider(
+                                        width: 8,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          Slider(
+                            min: 0,
+                            max: 10,
+                            divisions: 10,
+                            value: lockScreenTime.toDouble(),
+                            onChanged: (double newValue) {
+                              setState(() {
+                                lockScreenTime = newValue.round();
+                              });
+                            },
+                            label: lockScreenTime == 0
+                                ? "Never"
+                                : (lockScreenTime == 1
+                                    ? "1 Minute"
+                                    : lockScreenTime.toString() + " Minutes"),
+                          ),
+                        ],
+                      )),
+                ],
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                  left: 15.0, right: 15.0, top: 15, bottom: 0),
-              child: DropdownButtonFormField(
-                  value: lockScreenTimeSelected,
-                  //style: TextStyle(color: Colors.red,fontSize: 30),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      lockScreenTimeSelected = newValue!;
-                    });
-                  },
-                  items: lockScreenTimeDropdownItems),
             ),
             Padding(
               padding: const EdgeInsets.only(
@@ -140,7 +154,7 @@ class _PageSettingsState extends State<PageSettings> {
                   minimumSize: const Size.fromHeight(50),
                 ),
                 onPressed: () {
-                  //TODO FORGOT PASSWORD SCREEN GOES HERE
+                  utilBackToPreviousPage(context);
                 },
                 child: Text(
                   'Save Settings',
