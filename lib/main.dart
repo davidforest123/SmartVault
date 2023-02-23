@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:textvault/pages/pageChangePassword.dart';
+import 'package:textvault/pages/pageCreateFile.dart';
 import 'package:textvault/pages/pageDecryptFile.dart';
 import 'package:textvault/pages/pageEditor.dart';
-import 'package:textvault/pages/pageCreateFile.dart';
 import 'package:textvault/pages/pageSettings.dart';
 import 'package:textvault/theme/color.dart';
 
@@ -39,7 +39,7 @@ class TextVaultApp extends StatelessWidget {
         '/pageChangePassword': (context) => PageChangePassword(),
         '/pageDecryptFile': (context) => PageDecryptFile(""),
         '/pageEditor': (context) => PageEditor(),
-        '/pageSetPassword': (context) => PageSetPassword(),
+        '/pageCreateFile': (context) => PageCreateFile(),
         '/pageSettings': (context) => PageSettings(),
       },
     );
