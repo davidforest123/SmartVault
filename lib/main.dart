@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:textvault/pages/pageChangePassword.dart';
 import 'package:textvault/pages/pageDecryptFile.dart';
 import 'package:textvault/pages/pageEditor.dart';
-import 'package:textvault/pages/pageSetPassword.dart';
+import 'package:textvault/pages/pageCreateFile.dart';
 import 'package:textvault/pages/pageSettings.dart';
 import 'package:textvault/theme/color.dart';
 
