@@ -1,35 +1,78 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_boxicons/flutter_boxicons.dart';
 
 import '../utils/page.dart';
 
 // set password page
-class PageSetPassword extends StatefulWidget {
-  const PageSetPassword({Key? key}) : super(key: key);
+class PageCreateFile extends StatefulWidget {
+  const PageCreateFile({Key? key}) : super(key: key);
 
   @override
-  _PageSetPasswordState createState() => _PageSetPasswordState();
+  _PageCreateFileState createState() => _PageCreateFileState();
 }
 
-class _PageSetPasswordState extends State<PageSetPassword> {
+class _PageCreateFileState extends State<PageCreateFile> {
+  var selectDirTextField = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Set Password"),
+        title: Text("Create File"),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            const Padding(
+            Padding(
+              padding:
+                  EdgeInsets.only(left: 15.0, right: 15.0, top: 15, bottom: 0),
+              child: TextFormField(
+                controller: TextEditingController(text: "MyPasswords.tv"),
+                decoration: InputDecoration(
+                    prefixIcon: Icon(
+                      Boxicons.bx_file,
+                      size: 28.0,
+                    ),
+                    border: OutlineInputBorder(),
+                    labelText: 'File Name',
+                    hintText: 'Enter file name'),
+              ),
+            ),
+            Padding(
               padding:
                   EdgeInsets.only(left: 15.0, right: 15.0, top: 15, bottom: 0),
               child: TextField(
+                controller: selectDirTextField,
+                decoration: InputDecoration(
+                    labelText: 'Where To Store',
+                    hintText: 'Select a directory to store file',
+                    filled: true,
+                    prefixIcon: Icon(
+                      Icons.folder,
+                      size: 28.0,
+                    ),
+                    suffixIcon: IconButton(
+                        icon: Icon(Icons.browse_gallery),
+                        onPressed: () {
+                          utilPickDirectory(selectDirTextField);
+                        })),
+              ),
+            ),
+            Padding(
+              padding:
+                  EdgeInsets.only(left: 15.0, right: 15.0, top: 15, bottom: 0),
+              child: TextFormField(
                 obscureText: true,
                 decoration: InputDecoration(
+                    prefixIcon: Icon(
+                      Icons.password,
+                      size: 28.0,
+                    ),
                     border: OutlineInputBorder(),
                     labelText: 'Password',
-                    hintText: 'Enter password'),
+                    hintText: 'Enter password to encrypt file'),
               ),
             ),
             const Padding(
@@ -38,6 +81,10 @@ class _PageSetPasswordState extends State<PageSetPassword> {
               child: TextField(
                 obscureText: true,
                 decoration: InputDecoration(
+                    prefixIcon: Icon(
+                      Icons.password,
+                      size: 28.0,
+                    ),
                     border: OutlineInputBorder(),
                     labelText: 'Repeat Password',
                     hintText:
@@ -53,10 +100,10 @@ class _PageSetPasswordState extends State<PageSetPassword> {
                   minimumSize: const Size.fromHeight(50),
                 ),
                 onPressed: () {
-                  //TODO FORGOT PASSWORD SCREEN GOES HERE
+                  //utilPickDirectory();
                 },
                 child: const Text(
-                  'Set Password',
+                  'Create',
                   //style: TextStyle(color: Colors.blue, fontSize: 25),
                 ),
               ),
@@ -83,4 +130,13 @@ class _PageSetPasswordState extends State<PageSetPassword> {
       ),
     );
   }
+}
+
+void utilPickDirectory(TextEditingController selectDir) async {
+  String? selected = await FilePicker.platform.getDirectoryPath();
+  if (selected == null) {
+    // User canceled the picker
+    return;
+  }
+  selectDir.text = selected;
 }
