@@ -11,7 +11,7 @@ extension CustomColorScheme on ColorScheme {
       : Colors.white60;
 
   Color get barIconColor => brightness == Brightness.light
-      ? Colors.green // button filled color
+      ? Colors.black54 // button filled color
       : Colors.white60;
 
   Color get barColor => brightness == Brightness.light
