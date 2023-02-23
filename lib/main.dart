@@ -37,7 +37,7 @@ class TextVaultApp extends StatelessWidget {
       routes: {
         '/': (context) => PageEditor(),
         '/pageChangePassword': (context) => PageChangePassword(),
-        '/pageDecryptFile': (context) => PageDecryptFile(),
+        '/pageDecryptFile': (context) => PageDecryptFile(""),
         '/pageEditor': (context) => PageEditor(),
         '/pageSetPassword': (context) => PageSetPassword(),
         '/pageSettings': (context) => PageSettings(),

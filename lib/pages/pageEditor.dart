@@ -1,5 +1,7 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_boxicons/flutter_boxicons.dart';
+import 'package:textvault/pages/pageDecryptFile.dart';
 import 'package:textvault/theme/color.dart';
 
 // editor page
@@ -163,17 +165,20 @@ Map buttonOnTap(BuildContext context, String btnName) {
   var result = new Map();
 
   switch (btnName) {
-    case "New File":{
-
-    }
+    case "New File":
+      {}
       break;
 
     case "Open File":
-      {Navigator.pushNamed(context, '/pageDecryptFile');}
+      {
+        openOneTvFile(context);
+      }
       break;
 
     case "Save File":
-      {Navigator.pushNamed(context, '/pageSetPassword');}
+      {
+        Navigator.pushNamed(context, '/pageSetPassword');
+      }
       break;
 
     case "Set/Change Password":
@@ -284,4 +289,31 @@ class ToolbarTextButton extends StatelessWidget {
       ),
     );
   }
+}
+
+void openOneTvFile(BuildContext context) async {
+  final result = await FilePicker.platform.pickFiles(
+      dialogTitle: 'Select an TextVault(.tv) File:',
+      type: FileType.custom,
+      allowMultiple: false,
+      allowedExtensions: ['tv']);
+
+  // if no file is picked
+  if (result == null) return;
+
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) =>
+          PageDecryptFile(result.files.single.path.toString()),
+    ),
+  );
+}
+
+class Doc {
+  String password = "";
+  String content = "";
+  bool edited = false;
+  String shortName = "";
+  String filepath = "";
 }

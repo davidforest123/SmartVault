@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/page.dart';
+
 // set password page
 class PageSetPassword extends StatefulWidget {
   const PageSetPassword({Key? key}) : super(key: key);
@@ -20,8 +22,8 @@ class _PageSetPasswordState extends State<PageSetPassword> {
         child: Column(
           children: <Widget>[
             const Padding(
-              padding: EdgeInsets.only(
-                  left: 15.0, right: 15.0, top: 15, bottom: 0),
+              padding:
+                  EdgeInsets.only(left: 15.0, right: 15.0, top: 15, bottom: 0),
               child: TextField(
                 obscureText: true,
                 decoration: InputDecoration(
@@ -31,14 +33,15 @@ class _PageSetPasswordState extends State<PageSetPassword> {
               ),
             ),
             const Padding(
-              padding: EdgeInsets.only(
-                  left: 15.0, right: 15.0, top: 15, bottom: 0),
+              padding:
+                  EdgeInsets.only(left: 15.0, right: 15.0, top: 15, bottom: 0),
               child: TextField(
                 obscureText: true,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Repeat Password',
-                    hintText: 'Repeat the password to confirm that it is entered correctly'),
+                    hintText:
+                        'Repeat the password to confirm that it is entered correctly'),
               ),
             ),
             Padding(
@@ -67,7 +70,7 @@ class _PageSetPasswordState extends State<PageSetPassword> {
                   minimumSize: const Size.fromHeight(50),
                 ),
                 onPressed: () {
-                  //TODO FORGOT PASSWORD SCREEN GOES HERE
+                  utilBackToPreviousPage(context);
                 },
                 child: const Text(
                   'Cancel',

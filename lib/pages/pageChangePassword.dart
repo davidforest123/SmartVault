@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/page.dart';
+
 // change password page
 class PageChangePassword extends StatefulWidget {
   const PageChangePassword({Key? key}) : super(key: key);
@@ -79,7 +81,7 @@ class _PageChangePasswordState extends State<PageChangePassword> {
                   minimumSize: const Size.fromHeight(50),
                 ),
                 onPressed: () {
-                  //TODO FORGOT PASSWORD SCREEN GOES HERE
+                  utilBackToPreviousPage(context);
                 },
                 child: Text(
                   'Cancel',

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:textvault/utils/page.dart';
 
 // decrypt file page
 class PageDecryptFile extends StatefulWidget {
-  const PageDecryptFile({Key? key}) : super(key: key);
+  final String toOpenFile;
+  PageDecryptFile(String toOpenFile) : this.toOpenFile = toOpenFile;
 
   @override
   _PageDecryptFileState createState() => _PageDecryptFileState();
@@ -18,6 +21,17 @@ class _PageDecryptFileState extends State<PageDecryptFile> {
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(
+                  left: 15.0, right: 15.0, top: 15, bottom: 0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "To open: "+this.widget.toOpenFile,
+                  style: TextStyle(color: Colors.black, fontSize: 14),
+                ),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.only(
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
@@ -55,7 +69,7 @@ class _PageDecryptFileState extends State<PageDecryptFile> {
                   minimumSize: const Size.fromHeight(50),
                 ),
                 onPressed: () {
-                  //TODO FORGOT PASSWORD SCREEN GOES HERE
+                  utilBackToPreviousPage(context);
                 },
                 child: Text(
                   'Cancel',

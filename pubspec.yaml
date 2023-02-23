@@ -38,6 +38,8 @@ dependencies:
 
   flutter_boxicons: ^3.0.0
 
+  file_picker: ^5.2.5
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

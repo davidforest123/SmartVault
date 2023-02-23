@@ -17,6 +17,7 @@ class _PageSettingsState extends State<PageSettings> {
     ];
     return menuItems;
   }
+
   String langSelected = "English";
 
   List<DropdownMenuItem<String>> get defaultMaskModeDropdownItems {
@@ -26,6 +27,7 @@ class _PageSettingsState extends State<PageSettings> {
     ];
     return menuItems;
   }
+
   String defaultMaskModeSelected = "UnMask";
 
   List<DropdownMenuItem<String>> get lockScreenTimeDropdownItems {
@@ -44,6 +46,7 @@ class _PageSettingsState extends State<PageSettings> {
     ];
     return menuItems;
   }
+
   String lockScreenTimeSelected = "Never";
 
   @override
@@ -105,8 +108,8 @@ class _PageSettingsState extends State<PageSettings> {
                   items: defaultMaskModeDropdownItems),
             ),
             const Padding(
-              padding: EdgeInsets.only(
-                  left: 15.0, right: 15.0, top: 15, bottom: 0),
+              padding:
+                  EdgeInsets.only(left: 15.0, right: 15.0, top: 15, bottom: 0),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
