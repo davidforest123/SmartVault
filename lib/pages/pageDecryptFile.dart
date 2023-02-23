@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:textvault/utils/page.dart';
 
 // decrypt file page
 class PageDecryptFile extends StatefulWidget {
   final String toOpenFile;
+
   PageDecryptFile(String toOpenFile) : this.toOpenFile = toOpenFile;
 
   @override
@@ -27,7 +27,7 @@ class _PageDecryptFileState extends State<PageDecryptFile> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  "To open: "+this.widget.toOpenFile,
+                  "To open: " + this.widget.toOpenFile,
                   style: TextStyle(color: Colors.black, fontSize: 14),
                 ),
               ),
@@ -38,6 +38,10 @@ class _PageDecryptFileState extends State<PageDecryptFile> {
               child: TextField(
                 obscureText: true,
                 decoration: InputDecoration(
+                    prefixIcon: Icon(
+                      Icons.password,
+                      size: 28.0,
+                    ),
                     border: OutlineInputBorder(),
                     labelText: 'Password',
                     hintText: 'Enter password'),

@@ -27,6 +27,10 @@ class _PageChangePasswordState extends State<PageChangePassword> {
               child: TextField(
                 obscureText: true,
                 decoration: InputDecoration(
+                    prefixIcon: Icon(
+                      Icons.security,
+                      size: 28.0,
+                    ),
                     border: OutlineInputBorder(),
                     labelText: 'Old Password',
                     hintText: 'Enter old password'),
@@ -38,6 +42,10 @@ class _PageChangePasswordState extends State<PageChangePassword> {
               child: TextField(
                 obscureText: true,
                 decoration: InputDecoration(
+                    prefixIcon: Icon(
+                      Icons.password,
+                      size: 28.0,
+                    ),
                     border: OutlineInputBorder(),
                     labelText: 'New Password',
                     hintText: 'Enter new password'),
@@ -49,6 +57,10 @@ class _PageChangePasswordState extends State<PageChangePassword> {
               child: TextField(
                 obscureText: true,
                 decoration: InputDecoration(
+                    prefixIcon: Icon(
+                      Icons.password,
+                      size: 28.0,
+                    ),
                     border: OutlineInputBorder(),
                     labelText: 'Repeat New Password',
                     hintText:
