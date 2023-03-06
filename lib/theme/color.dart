@@ -17,4 +17,11 @@ extension CustomColorScheme on ColorScheme {
   Color get barColor => brightness == Brightness.light
       ? const Color.fromARGB(255, 255, 251, 254) // toolbar background color
       : Colors.white60;
+
+  Color get primaryColor => brightness == Brightness.light
+      ? Color(0xff6750a4) // default primaryColor of Material 3
+      : Color(0xff6750a4);
+
+  Color get hintColor =>
+      brightness == Brightness.light ? Color(0x99000000) : Color(0x99000000);
 }

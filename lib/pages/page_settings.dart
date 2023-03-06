@@ -7,15 +7,15 @@ class PageSettings extends StatefulWidget {
   const PageSettings({Key? key}) : super(key: key);
 
   @override
-  _PageSettingsState createState() => _PageSettingsState();
+  PageSettingsState createState() => PageSettingsState();
 }
 
-class _PageSettingsState extends State<PageSettings> {
+class PageSettingsState extends State<PageSettings> {
   List<DropdownMenuItem<String>> get langDropdownItems {
     List<DropdownMenuItem<String>> menuItems = [
-      DropdownMenuItem(child: Text("English"), value: "English"),
-      DropdownMenuItem(child: Text("简体中文"), value: "简体中文"),
-      DropdownMenuItem(child: Text("繁體中文"), value: "繁體中文"),
+      const DropdownMenuItem(value: "English", child: Text("English")),
+      const DropdownMenuItem(value: "简体中文", child: Text("简体中文")),
+      const DropdownMenuItem(value: "繁體中文", child: Text("繁體中文")),
     ];
     return menuItems;
   }
@@ -31,7 +31,7 @@ class _PageSettingsState extends State<PageSettings> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Settings"),
+        title: const Text("Settings"),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -42,7 +42,7 @@ class _PageSettingsState extends State<PageSettings> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     "Language",
                     style: TextStyle(color: Colors.black, fontSize: 14),
                   ),
@@ -66,12 +66,12 @@ class _PageSettingsState extends State<PageSettings> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     'Mask When Start',
                   ),
                   Switch(
                     value: autoMask,
-                    activeColor: Color(0xFF6200EE),
+                    activeColor: const Color(0xFF6200EE),
                     onChanged: (bool newValue) {
                       setState(() {
                         autoMask = newValue;
@@ -87,16 +87,17 @@ class _PageSettingsState extends State<PageSettings> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     "Lock File After Inactive",
                     style: TextStyle(color: Colors.black, fontSize: 14),
                   ),
-                  SizedBox( // SizedBox is used to control size of `Slider` component.
+                  SizedBox(
+                      // SizedBox is used to control size of `Slider` component.
                       width: MediaQuery.of(context).size.width / 2,
                       child: Column(
                         children: [
                           Container(
-                            margin: EdgeInsets.symmetric(horizontal: 20),
+                            margin: const EdgeInsets.symmetric(horizontal: 20),
                             child: Column(
                               children: [
                                 Row(
@@ -113,7 +114,7 @@ class _PageSettingsState extends State<PageSettings> {
                                       MainAxisAlignment.spaceBetween,
                                   children: List.generate(
                                     11,
-                                    (index) => SizedBox(
+                                    (index) => const SizedBox(
                                       height: 8,
                                       child: VerticalDivider(
                                         width: 8,
@@ -138,7 +139,7 @@ class _PageSettingsState extends State<PageSettings> {
                                 ? "Never"
                                 : (lockScreenTime == 1
                                     ? "1 Minute"
-                                    : lockScreenTime.toString() + " Minutes"),
+                                    : "$lockScreenTime Minutes"),
                           ),
                         ],
                       )),
@@ -156,7 +157,7 @@ class _PageSettingsState extends State<PageSettings> {
                 onPressed: () {
                   utilBackToPreviousPage(context);
                 },
-                child: Text(
+                child: const Text(
                   'Save Settings',
                   //style: TextStyle(color: Colors.blue, fontSize: 25),
                 ),
@@ -171,9 +172,8 @@ class _PageSettingsState extends State<PageSettings> {
                   minimumSize: const Size.fromHeight(50),
                 ),
                 onPressed: () {
-                  //TODO FORGOT PASSWORD SCREEN GOES HERE
                 },
-                child: Text(
+                child: const Text(
                   'Cancel',
                   //style: TextStyle(color: Colors.blue, fontSize: 25),
                 ),

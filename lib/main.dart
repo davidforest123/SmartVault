@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:textvault/pages/pageChangePassword.dart';
-import 'package:textvault/pages/pageCreateFile.dart';
-import 'package:textvault/pages/pageDecryptFile.dart';
-import 'package:textvault/pages/pageEditor.dart';
-import 'package:textvault/pages/pageSettings.dart';
+import 'package:textvault/pages/page_editor.dart';
+import 'package:textvault/pages/page_settings.dart';
 import 'package:textvault/theme/color.dart';
 
 void main() {
@@ -36,10 +33,7 @@ class TextVaultApp extends StatelessWidget {
       // When navigating to a route, build the corresponding page.
       routes: {
         '/': (context) => PageEditor(),
-        '/pageChangePassword': (context) => PageChangePassword(),
-        '/pageDecryptFile': (context) => PageDecryptFile(""),
         '/pageEditor': (context) => PageEditor(),
-        '/pageCreateFile': (context) => PageCreateFile(),
         '/pageSettings': (context) => PageSettings(),
       },
     );
