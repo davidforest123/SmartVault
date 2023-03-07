@@ -22,7 +22,7 @@ class PageSettingsState extends State<PageSettings> {
 
   String langSelected = "English";
 
-  bool autoMask = false;
+  bool enableDarkTheme = false;
 
   int lockScreenTime = 0;
 
@@ -67,14 +67,14 @@ class PageSettingsState extends State<PageSettings> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Mask When Start',
+                    'Dark Theme',
                   ),
                   Switch(
-                    value: autoMask,
+                    value: enableDarkTheme,
                     activeColor: const Color(0xFF6200EE),
                     onChanged: (bool newValue) {
                       setState(() {
-                        autoMask = newValue;
+                        enableDarkTheme = newValue;
                       });
                     },
                   )
