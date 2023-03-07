@@ -450,23 +450,6 @@ class PageEditorState extends State<PageEditor> {
               tooltip: 'Open File',
             ),
             const TooltipIcon(
-              icon: Icons.settings,
-              tooltip: 'Settings',
-            ),
-            const TooltipIcon(
-              icon: Icons.update,
-              tooltip: 'Check Update',
-            ),
-            const TooltipIcon(
-              icon: Boxicons.bxl_github,
-              tooltip: 'Github Repository',
-            ),
-            VerticalDivider(
-              endIndent: 10,
-              indent: 10,
-              color: Theme.of(context).colorScheme.barIconColor,
-            ),
-            const TooltipIcon(
               icon: Icons.save,
               tooltip: 'Save File',
             ),
@@ -485,6 +468,23 @@ class PageEditorState extends State<PageEditor> {
             const TooltipIcon(
               icon: Icons.find_replace,
               tooltip: 'Find Replace',
+            ),
+            VerticalDivider(
+              endIndent: 10,
+              indent: 10,
+              color: Theme.of(context).colorScheme.barIconColor,
+            ),
+            const TooltipIcon(
+              icon: Icons.settings,
+              tooltip: 'Settings',
+            ),
+            const TooltipIcon(
+              icon: Icons.update,
+              tooltip: 'Check Update',
+            ),
+            const TooltipIcon(
+              icon: Boxicons.bxl_github,
+              tooltip: 'Github Repository',
             ),
           ],
         ),
@@ -548,8 +548,8 @@ class WidgetEditorState extends State<WidgetEditor> {
             style: BorderStyle.none,
           ),
         ),
-        filled: true,
-        fillColor: Colors.white);
+        fillColor: Colors.white
+    );
 
     var widgetEditor = Padding(
         // mouse cursor padding to TextFormField edge
@@ -651,7 +651,7 @@ class WidgetEditorState extends State<WidgetEditor> {
                 border: OutlineInputBorder(),
                 labelText: 'Confirm Password',
                 hintText:
-                    'Repeat the password to confirm that it is entered correctly'),
+                    'Enter the password again to confirm that it was entered correctly'),
           ),
         ),
         Padding(
@@ -836,7 +836,7 @@ class WidgetEditorState extends State<WidgetEditor> {
                 border: OutlineInputBorder(),
                 labelText: 'Confirm New Password',
                 hintText:
-                    'Repeat the new password to confirm that it is entered correctly'),
+                    'Enter the password again to confirm that it was entered correctly'),
           ),
         ),
         Padding(
