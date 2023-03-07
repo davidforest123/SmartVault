@@ -34,7 +34,8 @@ class WidgetTabsState extends State<WidgetTabView>
 
   @override
   void initState() {
-    gTabViewSetStateNotifier.addListener(setStateCallback); // add listen callback for `gTabViewSetStateNotifier`
+    gTabViewSetStateNotifier.addListener(
+        setStateCallback); // add listen callback for `gTabViewSetStateNotifier`
     _currentPosition = widget.initPosition ?? 0;
     controller = TabController(
       length: widget.itemCount,
@@ -94,7 +95,8 @@ class WidgetTabsState extends State<WidgetTabView>
 
   @override
   void dispose() {
-    gTabViewSetStateNotifier.removeListener(setStateCallback); // remove listen callback for `gNotifier`
+    gTabViewSetStateNotifier.removeListener(
+        setStateCallback); // remove listen callback for `gNotifier`
     controller.animation!.removeListener(onScroll);
     controller.removeListener(onPositionChange);
     controller.dispose();
@@ -104,30 +106,38 @@ class WidgetTabsState extends State<WidgetTabView>
   @override
   Widget build(BuildContext context) {
     if (widget.itemCount < 1) return widget.stub ?? Container();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         Container(
+          // TabBar background color, it is also the color of unselected tab,
+          // because tab is transparent here.
+          color: Colors.grey.withOpacity(0.2),
           alignment: Alignment.center,
           child: TabBar(
-            isScrollable: false,
             // Set false can remove extra space on the left/right of tabs.
+            isScrollable: false,
             controller: controller,
+            // selected tab text color
             labelColor: Theme.of(context).primaryColor,
+            // unselected tab text color
             unselectedLabelColor: Theme.of(context).hintColor,
+            // Adjust the spacing between the tabs, it is an important option,
+            // it also changes the width of indicator(the selected tab).
+            // If it is not set as 0, `indicator.BoxDecoration.color` will not cover a whole tabBar.
+            labelPadding: const EdgeInsets.symmetric(horizontal: 0),
             indicator: BoxDecoration(
-              border: Border(
+              // indicator background color, covers a whole TabBar.
+              color: Theme.of(context).cardColor,
+              border: const Border(
                 bottom: BorderSide(
-                  color: Theme.of(context).primaryColor,
-                  width: 2,
+                  // hide the bottom line inside the indicator
+                  color: Colors.transparent, //Theme.of(context).primaryColor,
                 ),
               ),
             ),
+            // hide the bottom line outside the indicator
             indicatorWeight: 0,
-            // hide indicator
-            indicatorColor: Colors.transparent,
-            // indicator color: bottom border color under children(text, icon...) of selected tab.
             tabs: List.generate(
               widget.itemCount,
               (index) => widget.tabBuilder(context, index),

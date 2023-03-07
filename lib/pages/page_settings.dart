@@ -171,8 +171,7 @@ class PageSettingsState extends State<PageSettings> {
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(50),
                 ),
-                onPressed: () {
-                },
+                onPressed: () {},
                 child: const Text(
                   'Cancel',
                   //style: TextStyle(color: Colors.blue, fontSize: 25),

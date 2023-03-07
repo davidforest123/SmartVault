@@ -11,8 +11,8 @@ import 'package:path/path.dart' as path;
 import 'package:textvault/theme/color.dart';
 import 'package:textvault/utils/home_dir.dart';
 import 'package:textvault/utils/number.dart';
-import 'package:textvault/widgets/widget_tab_view.dart';
 import 'package:textvault/widgets/widget_alert_dialog.dart';
+import 'package:textvault/widgets/widget_tab_view.dart';
 
 /// TextFormField content will disappear if user switch tabs(lost focus) or resize window.
 /// If user want to keep text of TextFormField, there are 3 things must be done:
@@ -137,13 +137,11 @@ class Doc {
     switch (intVersion) {
       case 1:
         {
-          var digest = sha256
-              .convert(utf8.encode(ctrlPageDecFilePwd.text))
-              .toString();
+          var digest =
+              sha256.convert(utf8.encode(ctrlPageDecFilePwd.text)).toString();
           final key = enc.Key.fromUtf8(digest.substring(0, 32));
           final iv = enc.IV.fromUtf8('16bytesIVabCDefG');
-          final crypt =
-              enc.Encrypter(enc.AES(key, mode: enc.AESMode.ctr));
+          final crypt = enc.Encrypter(enc.AES(key, mode: enc.AESMode.ctr));
           var plainText = '';
           try {
             plainText = crypt.decrypt(cipherText, iv: iv);
@@ -227,46 +225,45 @@ int gSelectedTabIndex = 0;
 final gNotifier = ValueNotifier("");
 Config gConfig = Config();
 
-
 Widget onTabBuild(BuildContext context, int index) {
   var width = (index == 0) ? 0.0 : 25.0;
   var height = (index == 0) ? 0.0 : 25.0;
   var editedStatus = gDocs[index]!.edited ? ' - [Edited]' : '';
   return Tab(
     height: 40,
-    child: Container(
-      // used to set color of Row
-      //color: Colors.purple.withOpacity(0.9),
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(gDocs[index]!.filename + editedStatus),
-          Container(
-              decoration: BoxDecoration(
-                  border: Border.all(
-                      color: Colors.transparent, style: BorderStyle.none)),
-              height: height,
-              width: width,
-              child: FittedBox(
-                child: FloatingActionButton(
-                    heroTag: 'btn$index', // 'heroTag' must be unique between different FloatingActionButton
-                    elevation: 0,
-                    // remove shadow of FloatingActionButton
-                    backgroundColor: Colors.transparent,
-                    shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(90.0))),
-                    child: const Icon(
-                      Icons.close,
-                      size: 28,
-                    ),
-                    onPressed: () {
-                      gNotifier.value = "";
-                      gNotifier.value = "close-file:$index";
-                    }),
-              ))
-        ],
-      ),
+    child: Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(10),
+          child: Text(gDocs[index]!.filename + editedStatus),
+        ),
+        Container(
+            decoration: BoxDecoration(
+                border: Border.all(
+                    color: Colors.transparent, style: BorderStyle.none)),
+            height: height,
+            width: width,
+            child: FittedBox(
+              child: FloatingActionButton(
+                  heroTag: 'btn$index',
+                  // 'heroTag' must be unique between different FloatingActionButton
+                  elevation: 0,
+                  // remove shadow of FloatingActionButton
+                  backgroundColor: Colors.transparent,
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(90.0))),
+                  child: const Icon(
+                    Icons.close,
+                    size: 28,
+                  ),
+                  onPressed: () {
+                    gNotifier.value = "";
+                    gNotifier.value = "close-file:$index";
+                  }),
+            ))
+      ],
     ),
   );
 }
@@ -274,21 +271,23 @@ Widget onTabBuild(BuildContext context, int index) {
 Widget onTabWindowBuild(BuildContext context, int index) {
   if (index == 0) {
     gConfig.load();
-    var clearBtn = Padding(padding: const EdgeInsets.all(5), child: ElevatedButton(
-      onPressed: () {
-        gConfig.recentOpen = [];
-        gConfig.save();
-        gTabViewSetStateNotifier.value = '';
-        gTabViewSetStateNotifier.value = 'update recent open window';
-      },
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        child: const Text("Clear Recent Open"),
-      ),
-    ));
+    var clearBtn = Padding(
+        padding: const EdgeInsets.all(5),
+        child: ElevatedButton(
+          onPressed: () {
+            gConfig.recentOpen = [];
+            gConfig.save();
+            gTabViewSetStateNotifier.value = '';
+            gTabViewSetStateNotifier.value = 'update recent open window';
+          },
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            child: const Text("Clear Recent Open"),
+          ),
+        ));
     var historyList = List.generate(
       gConfig.recentOpen.length,
-          (index) => Padding(
+      (index) => Padding(
         padding: const EdgeInsets.all(5),
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
@@ -362,6 +361,10 @@ class PageEditorState extends State<PageEditor> {
         });
       }
     } else if (gNotifier.value == 'save-file') {
+      // ignore 'Recent Open' page
+      if (gSelectedTabIndex == 0) {
+        return;
+      }
       gDocs[gSelectedTabIndex]!.content =
           gDocs[gSelectedTabIndex]!.ctrlContent.text;
       var errMsg = gDocs[gSelectedTabIndex]!.save();
@@ -376,7 +379,8 @@ class PageEditorState extends State<PageEditor> {
   addTab(String filename, String content, String password, String filepath,
       initSelectedTab) {
     var alreadyOpen = false;
-    if (filepath.isNotEmpty) { // user can open multiple tabs with empty filepath, empty filepath means user will create new file.
+    // user can open multiple tabs with empty filepath, empty filepath means user will create new file.
+    if (filepath.isNotEmpty) {
       for (int i = 0; i < gDocs.length; i++) {
         if (gDocs[i]!.filepath == filepath) {
           alreadyOpen = true;
@@ -384,7 +388,8 @@ class PageEditorState extends State<PageEditor> {
       }
     }
     if (alreadyOpen) {
-      showAlertDialog(context, "Can't Open File", "File($filepath) already open", "OK");
+      showAlertDialog(
+          context, "Can't Open File", "File($filepath) already open", "OK");
       return;
     }
 
@@ -401,6 +406,9 @@ class PageEditorState extends State<PageEditor> {
       newDoc.ctrlPageCreateFileName.text = filename;
       gDocs[newIdx] = newDoc;
       gSelectedTabIndex = gDocs.length - 1; // select last tab
+      print("current tab $gSelectedTabIndex");
+      gTabViewSetStateNotifier.value = "";
+      gTabViewSetStateNotifier.value = "update TabBars' color";
     });
   }
 
@@ -427,6 +435,7 @@ class PageEditorState extends State<PageEditor> {
     var myToolBar = Container(
       height: 40,
       width: MediaQuery.of(context).size.width,
+      // toolbar background color
       color: Theme.of(context).colorScheme.barColor,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -474,18 +483,6 @@ class PageEditorState extends State<PageEditor> {
               tooltip: 'Redo',
             ),
             const TooltipIcon(
-              icon: Icons.copy,
-              tooltip: 'Copy',
-            ),
-            const TooltipIcon(
-              icon: Icons.cut,
-              tooltip: 'Cut',
-            ),
-            const TooltipIcon(
-              icon: Icons.paste,
-              tooltip: 'Paste',
-            ),
-            const TooltipIcon(
               icon: Icons.find_replace,
               tooltip: 'Find Replace',
             ),
@@ -501,6 +498,9 @@ class PageEditorState extends State<PageEditor> {
       pageBuilder: (context, index) => onTabWindowBuild(context, index),
       onPositionChange: (index) {
         gSelectedTabIndex = index;
+        print("current tab $index");
+        gTabViewSetStateNotifier.value = "";
+        gTabViewSetStateNotifier.value = "update TabBars' color";
       },
       //onScroll: (position) => print('$position'),
     );
@@ -603,13 +603,12 @@ class WidgetEditorState extends State<WidgetEditor> {
         Padding(
           padding: const EdgeInsets.only(
               left: 15.0, right: 15.0, top: 15, bottom: 0),
-          child: TextField(
-            controller:
-                gDocs[widget.tabIndex]!.ctrlPageCreateFileSelectDir,
+          child: TextFormField(
+            controller: gDocs[widget.tabIndex]!.ctrlPageCreateFileSelectDir,
             decoration: InputDecoration(
                 labelText: 'Where To Store',
                 hintText: 'Select a directory to store file',
-                filled: true,
+                border: const OutlineInputBorder(),
                 prefixIcon: const Icon(
                   Icons.folder,
                   size: 28.0,
@@ -617,8 +616,8 @@ class WidgetEditorState extends State<WidgetEditor> {
                 suffixIcon: IconButton(
                     icon: const Icon(Icons.browse_gallery),
                     onPressed: () {
-                      utilPickDirectory(gDocs[widget.tabIndex]!
-                          .ctrlPageCreateFileSelectDir);
+                      utilPickDirectory(
+                          gDocs[widget.tabIndex]!.ctrlPageCreateFileSelectDir);
                     })),
           ),
         ),
@@ -642,8 +641,7 @@ class WidgetEditorState extends State<WidgetEditor> {
           padding: const EdgeInsets.only(
               left: 15.0, right: 15.0, top: 15, bottom: 0),
           child: TextFormField(
-            controller:
-                gDocs[widget.tabIndex]!.ctrlPageCreateFilePwdConfirm,
+            controller: gDocs[widget.tabIndex]!.ctrlPageCreateFilePwdConfirm,
             obscureText: true,
             decoration: const InputDecoration(
                 prefixIcon: Icon(
@@ -666,8 +664,7 @@ class WidgetEditorState extends State<WidgetEditor> {
             ),
             onPressed: () {
               var errMsg = '';
-              if (gDocs[widget.tabIndex]!.ctrlPageCreateFileName.text ==
-                  '') {
+              if (gDocs[widget.tabIndex]!.ctrlPageCreateFileName.text.isEmpty) {
                 errMsg = '[File Name] must be non-empty';
               } else if (gDocs[widget.tabIndex]!
                       .ctrlPageCreateFileName
@@ -676,11 +673,13 @@ class WidgetEditorState extends State<WidgetEditor> {
                   false) {
                 errMsg = '[File Name] must end with \'.tv\'';
               } else if (gDocs[widget.tabIndex]!
-                      .ctrlPageCreateFileSelectDir
-                      .text ==
-                  '') {
+                  .ctrlPageCreateFileSelectDir
+                  .text
+                  .isEmpty) {
                 errMsg = '[Where To Store] must be non-empty';
-              } else if (Directory(gDocs[widget.tabIndex]!.ctrlPageCreateFileSelectDir.text)
+              } else if (Directory(gDocs[widget.tabIndex]!
+                          .ctrlPageCreateFileSelectDir
+                          .text)
                       .existsSync() ==
                   false) {
                 errMsg = '[Where To Store] must already exist]';
@@ -688,9 +687,7 @@ class WidgetEditorState extends State<WidgetEditor> {
                           gDocs[widget.tabIndex]!
                               .ctrlPageCreateFileSelectDir
                               .text,
-                          gDocs[widget.tabIndex]!
-                              .ctrlPageCreateFileName
-                              .text))
+                          gDocs[widget.tabIndex]!.ctrlPageCreateFileName.text))
                       .existsSync() ==
                   true) {
                 errMsg = '[Where To Store]/[File Name] must not exist]';
@@ -706,7 +703,7 @@ class WidgetEditorState extends State<WidgetEditor> {
                 errMsg = "[Password] and [Confirm Password] don't match";
               }
 
-              if (errMsg != '') {
+              if (errMsg.isNotEmpty) {
                 showAlertDialog(context, "Can't Create File", errMsg, "OK");
               } else {
                 // `setState` is necessary for switching tab right now
@@ -715,9 +712,7 @@ class WidgetEditorState extends State<WidgetEditor> {
                       gDocs[widget.tabIndex]!.ctrlPageCreateFileName.text;
                   gDocs[widget.tabIndex]!.content = '';
                   gDocs[widget.tabIndex]!.filepath = path.join(
-                      gDocs[widget.tabIndex]!
-                          .ctrlPageCreateFileSelectDir
-                          .text,
+                      gDocs[widget.tabIndex]!.ctrlPageCreateFileSelectDir.text,
                       gDocs[widget.tabIndex]!.ctrlPageCreateFileName.text);
                   gDocs[widget.tabIndex]!.password =
                       gDocs[widget.tabIndex]!.ctrlPageCreateFilePwd.text;
@@ -765,10 +760,7 @@ class WidgetEditorState extends State<WidgetEditor> {
             ),
             onPressed: () {
               var errMsg = '';
-              if (gDocs[widget.tabIndex]!
-                  .ctrlPageDecFilePwd
-                  .text
-                  .isEmpty) {
+              if (gDocs[widget.tabIndex]!.ctrlPageDecFilePwd.text.isEmpty) {
                 errMsg = "Password must be non-empty";
               } else {
                 errMsg = gDocs[widget.tabIndex]!.load();
@@ -834,8 +826,7 @@ class WidgetEditorState extends State<WidgetEditor> {
           padding: const EdgeInsets.only(
               left: 15.0, right: 15.0, top: 15, bottom: 0),
           child: TextField(
-            controller:
-                gDocs[widget.tabIndex]!.ctrlPageChgPwdNewPwdConfirm,
+            controller: gDocs[widget.tabIndex]!.ctrlPageChgPwdNewPwdConfirm,
             obscureText: true,
             decoration: const InputDecoration(
                 prefixIcon: Icon(
@@ -865,15 +856,10 @@ class WidgetEditorState extends State<WidgetEditor> {
                       "old password is not correct", "OK");
                   return;
                 }
-                if (gDocs[widget.tabIndex]!
-                        .ctrlPageChgPwdNewPwd
-                        .text
-                        .length <
+                if (gDocs[widget.tabIndex]!.ctrlPageChgPwdNewPwd.text.length <
                     gMinPwdLen) {
-                  var pwdLen = gDocs[widget.tabIndex]!
-                      .ctrlPageChgPwdNewPwd
-                      .text
-                      .length;
+                  var pwdLen =
+                      gDocs[widget.tabIndex]!.ctrlPageChgPwdNewPwd.text.length;
                   showAlertDialog(
                       context,
                       "Can't Change Password",
@@ -882,9 +868,7 @@ class WidgetEditorState extends State<WidgetEditor> {
                   return;
                 }
                 if (gDocs[widget.tabIndex]!.ctrlPageChgPwdNewPwd.text !=
-                    gDocs[widget.tabIndex]!
-                        .ctrlPageChgPwdNewPwdConfirm
-                        .text) {
+                    gDocs[widget.tabIndex]!.ctrlPageChgPwdNewPwdConfirm.text) {
                   showAlertDialog(
                       context,
                       "Can't Change Password",
@@ -906,8 +890,7 @@ class WidgetEditorState extends State<WidgetEditor> {
 
                 gDocs[widget.tabIndex]!.ctrlPageChgPwdOldPwd.text = '';
                 gDocs[widget.tabIndex]!.ctrlPageChgPwdNewPwd.text = '';
-                gDocs[widget.tabIndex]!.ctrlPageChgPwdNewPwdConfirm.text =
-                    '';
+                gDocs[widget.tabIndex]!.ctrlPageChgPwdNewPwdConfirm.text = '';
                 gDocs[gSelectedTabIndex]!.selectedTab = 2;
               });
             },
@@ -930,8 +913,7 @@ class WidgetEditorState extends State<WidgetEditor> {
               setState(() {
                 gDocs[widget.tabIndex]!.ctrlPageChgPwdOldPwd.text = '';
                 gDocs[widget.tabIndex]!.ctrlPageChgPwdNewPwd.text = '';
-                gDocs[widget.tabIndex]!.ctrlPageChgPwdNewPwdConfirm.text =
-                    '';
+                gDocs[widget.tabIndex]!.ctrlPageChgPwdNewPwdConfirm.text = '';
                 gDocs[gSelectedTabIndex]!.selectedTab = 2;
               });
             },
