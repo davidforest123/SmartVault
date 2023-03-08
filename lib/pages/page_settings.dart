@@ -22,8 +22,6 @@ class PageSettingsState extends State<PageSettings> {
 
   String langSelected = "English";
 
-  bool enableDarkTheme = false;
-
   int lockScreenTime = 0;
 
   @override
@@ -60,7 +58,7 @@ class PageSettingsState extends State<PageSettings> {
                 ],
               ),
             ),
-            Padding(
+            /*Padding(
               padding: const EdgeInsets.only(
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
               child: Row(
@@ -80,7 +78,7 @@ class PageSettingsState extends State<PageSettings> {
                   )
                 ],
               ),
-            ),
+            ),*/
             Padding(
               padding: const EdgeInsets.only(
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
