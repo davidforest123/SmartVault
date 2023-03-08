@@ -11,6 +11,7 @@ import 'package:path/path.dart' as path;
 import 'package:textvault/theme/color.dart';
 import 'package:textvault/utils/home_dir.dart';
 import 'package:textvault/utils/number.dart';
+import 'package:textvault/utils/url.dart';
 import 'package:textvault/widgets/widget_alert_dialog.dart';
 import 'package:textvault/widgets/widget_tab_view.dart';
 
@@ -141,7 +142,7 @@ class Doc {
               sha256.convert(utf8.encode(ctrlPageDecFilePwd.text)).toString();
           final key = enc.Key.fromUtf8(digest.substring(0, 32));
           final iv = enc.IV.fromUtf8('16bytesIVabCDefG');
-          final crypt = enc.Encrypter(enc.AES(key, mode: enc.AESMode.ctr));
+          final crypt = enc.Encrypter(enc.AES(key, mode: enc.AESMode.ctr, padding: 'PKCS7'));
           var plainText = '';
           try {
             plainText = crypt.decrypt(cipherText, iv: iv);
@@ -477,10 +478,6 @@ class PageEditorState extends State<PageEditor> {
             const TooltipIcon(
               icon: Icons.settings,
               tooltip: 'Settings',
-            ),
-            const TooltipIcon(
-              icon: Icons.update,
-              tooltip: 'Check Update',
             ),
             const TooltipIcon(
               icon: Boxicons.bxl_github,
@@ -1050,7 +1047,9 @@ Map onToolbarBtnTap(BuildContext context, String btnName) {
       break;
 
     case "Github Repository":
-      {}
+      {
+        launchURL('https://github.com/davidforest123/TextVault');
+      }
       break;
 
     default:
