@@ -6,14 +6,18 @@ import 'package:crypto/crypto.dart';
 import 'package:encrypt/encrypt.dart' as enc;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_boxicons/flutter_boxicons.dart';
+import 'package:flutter_window_close/flutter_window_close.dart';
 import 'package:path/path.dart' as path;
 import 'package:textvault/theme/color.dart';
 import 'package:textvault/utils/home_dir.dart';
+import 'package:textvault/utils/math.dart';
 import 'package:textvault/utils/number.dart';
 import 'package:textvault/utils/url.dart';
 import 'package:textvault/widgets/widget_alert_dialog.dart';
 import 'package:textvault/widgets/widget_tab_view.dart';
+import 'package:textvault/widgets/widget_toolbar.dart';
 
 /// TextFormField content will disappear if user switch tabs(lost focus) or resize window.
 /// If user want to keep text of TextFormField, there are 3 things must be done:
@@ -24,6 +28,15 @@ import 'package:textvault/widgets/widget_tab_view.dart';
 const gTvHeader = 'tvheader';
 const gMinPwdLen = 8;
 const gMinFileSize = 18;
+const btnNameNewFile = 'New File';
+const btnNameOpenFile = 'Open File';
+const btnNameSaveFile = 'Save File';
+const btnNameChangePassword = 'Change Password';
+const btnNameUndo = 'Undo';
+const btnNameRedo = 'Redo';
+const btnNameFindReplace = 'Find Replace';
+const btnNameSettings = 'Settings';
+const btnNameGithubRepository = 'Github Repository';
 
 class Doc {
   Doc({
@@ -142,7 +155,8 @@ class Doc {
               sha256.convert(utf8.encode(ctrlPageDecFilePwd.text)).toString();
           final key = enc.Key.fromUtf8(digest.substring(0, 32));
           final iv = enc.IV.fromUtf8('16bytesIVabCDefG');
-          final crypt = enc.Encrypter(enc.AES(key, mode: enc.AESMode.ctr, padding: 'PKCS7'));
+          final crypt = enc.Encrypter(
+              enc.AES(key, mode: enc.AESMode.ctr, padding: 'PKCS7'));
           var plainText = '';
           try {
             plainText = crypt.decrypt(cipherText, iv: iv);
@@ -223,7 +237,8 @@ Map<int, Doc> gDocs = {
 
 int gSelectedTabIndex = 0;
 // message notifier between different widgets.
-final gNotifier = ValueNotifier("");
+final gEditorNotifier = ValueNotifier("");
+
 Config gConfig = Config();
 
 Widget onTabBuild(BuildContext context, int index) {
@@ -260,8 +275,8 @@ Widget onTabBuild(BuildContext context, int index) {
                     size: 28,
                   ),
                   onPressed: () {
-                    gNotifier.value = "";
-                    gNotifier.value = "close-file:$index";
+                    gEditorNotifier.value = "";
+                    gEditorNotifier.value = "close-file:$index";
                   }),
             ))
       ],
@@ -294,8 +309,8 @@ Widget onTabWindowBuild(BuildContext context, int index) {
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             onTap: () {
-              gNotifier.value = "";
-              gNotifier.value = 'open-file:${gConfig.recentOpen[index]}';
+              gEditorNotifier.value = "";
+              gEditorNotifier.value = 'open-file:${gConfig.recentOpen[index]}';
             },
             child: Text(gConfig.recentOpen[index],
                 style: const TextStyle(
@@ -332,28 +347,62 @@ class PageEditorState extends State<PageEditor> {
   @override
   void initState() {
     super.initState();
-    gNotifier.addListener(update); // add listen callback for `gNotifier`
+    gEditorNotifier.addListener(update); // add listen callback for `gNotifier`
+
+    // Intercept the window close event, and decide whether to exit the
+    // application according to the user's choice. This method only works
+    // on the Linux/macOS/Windows desktop side.
+    FlutterWindowClose.setWindowShouldCloseHandler(() async {
+      var editedCount = 0;
+      gDocs.forEach((key, value) {
+        if (value.edited) {
+          editedCount++;
+        }
+      });
+      var documentStr = editedCount > 1 ? 'documents' : 'document';
+      if (editedCount > 0) {
+        return await showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                  title: Text(
+                      '$editedCount $documentStr need to be saved, do you really want to quit without saving?'),
+                  actions: [
+                    ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: const Text('Quit')),
+                    ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('Don\'t Quit')),
+                  ]);
+            });
+      } else {
+        // quit app
+        return true;
+      }
+    });
   }
 
   @override
   void dispose() {
+    gEditorNotifier
+        .removeListener(update); // remove listen callback for `gNotifier`
     super.dispose();
-    gNotifier.removeListener(update); // remove listen callback for `gNotifier`
   }
 
 // listen callback of `gNotifier`
   void update() {
     //setState(() {});
-    if (gNotifier.value == 'new-file') {
+    if (gEditorNotifier.value == 'new-file') {
       addTab("untitled-${gDocs.length}.tv", "", "", "", 0);
-    } else if (gNotifier.value.startsWith("open-file:")) {
-      var toOpenFilepath = gNotifier.value.replaceAll("open-file:", "");
+    } else if (gEditorNotifier.value.startsWith("open-file:")) {
+      var toOpenFilepath = gEditorNotifier.value.replaceAll("open-file:", "");
       String basename = path.basename(File(toOpenFilepath).path);
       addTab(basename, "", "", toOpenFilepath, 1);
-    } else if (gNotifier.value.startsWith("close-file:")) {
-      var toRemoveIdx = gNotifier.value.replaceAll("close-file:", "");
+    } else if (gEditorNotifier.value.startsWith("close-file:")) {
+      var toRemoveIdx = gEditorNotifier.value.replaceAll("close-file:", "");
       delTab(int.parse(toRemoveIdx));
-    } else if (gNotifier.value == 'change-password') {
+    } else if (gEditorNotifier.value == 'change-password') {
       if (gSelectedTabIndex >= 1 &&
           gDocs[gSelectedTabIndex]!.selectedTab == 2) {
         // `setState` is necessary for switching tab right now
@@ -361,7 +410,7 @@ class PageEditorState extends State<PageEditor> {
           gDocs[gSelectedTabIndex]!.selectedTab = 3;
         });
       }
-    } else if (gNotifier.value == 'save-file') {
+    } else if (gEditorNotifier.value == 'save-file') {
       // ignore 'Recent Open' page
       if (gSelectedTabIndex == 0) {
         return;
@@ -407,10 +456,12 @@ class PageEditorState extends State<PageEditor> {
       newDoc.ctrlPageCreateFileName.text = filename;
       gDocs[newIdx] = newDoc;
       gSelectedTabIndex = gDocs.length - 1; // select last tab
-      print("current tab $gSelectedTabIndex");
+      print("current main tab $gSelectedTabIndex");
       gTabViewSetStateNotifier.value = "";
       gTabViewSetStateNotifier.value = "update TabBars' color";
     });
+
+    gToolbarNotifier.value = 'update toolbar:${getRandomString(10)}';
   }
 
   delTab(int delIdx) {
@@ -442,46 +493,104 @@ class PageEditorState extends State<PageEditor> {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            const TooltipIcon(
+            TooltipIcon(
+              onTap: onToolbarBtnTap,
               icon: Icons.create,
-              tooltip: 'New File',
+              tooltip: btnNameNewFile,
+              enable: () {
+                return true;
+              },
             ),
-            const TooltipIcon(
+            TooltipIcon(
+              onTap: onToolbarBtnTap,
               icon: Icons.file_open,
-              tooltip: 'Open File',
+              tooltip: btnNameOpenFile,
+              enable: () {
+                return true;
+              },
             ),
-            const TooltipIcon(
+            TooltipIcon(
+              onTap: onToolbarBtnTap,
               icon: Icons.save,
-              tooltip: 'Save File',
+              tooltip: btnNameSaveFile,
+              enable: () {
+                if (gDocs[gSelectedTabIndex] == null) {
+                  return false;
+                }
+                return (gSelectedTabIndex > 0 &&
+                    gDocs[gSelectedTabIndex]!.edited &&
+                    gDocs[gSelectedTabIndex]!.selectedTab == 2);
+              },
             ),
-            const TooltipIcon(
+            TooltipIcon(
+              onTap: onToolbarBtnTap,
               icon: Icons.password,
-              tooltip: 'Change Password',
+              tooltip: btnNameChangePassword,
+              enable: () {
+                if (gDocs[gSelectedTabIndex] == null) {
+                  return false;
+                }
+                return (gSelectedTabIndex > 0 &&
+                    !gDocs[gSelectedTabIndex]!.edited &&
+                    gDocs[gSelectedTabIndex]!.selectedTab == 2);
+              },
             ),
-            const TooltipIcon(
+            TooltipIcon(
+              onTap: onToolbarBtnTap,
               icon: Icons.undo,
-              tooltip: 'Undo',
+              tooltip: btnNameUndo,
+              enable: () {
+                if (gDocs[gSelectedTabIndex] == null) {
+                  return false;
+                }
+                return (gSelectedTabIndex > 0 &&
+                    gDocs[gSelectedTabIndex]!.selectedTab == 2);
+              },
             ),
-            const TooltipIcon(
+            TooltipIcon(
+              onTap: onToolbarBtnTap,
               icon: Icons.redo,
-              tooltip: 'Redo',
+              tooltip: btnNameRedo,
+              enable: () {
+                if (gDocs[gSelectedTabIndex] == null) {
+                  return false;
+                }
+                return (gSelectedTabIndex > 0 &&
+                    gDocs[gSelectedTabIndex]!.selectedTab == 2);
+              },
             ),
-            const TooltipIcon(
+            TooltipIcon(
+              onTap: onToolbarBtnTap,
               icon: Icons.find_replace,
-              tooltip: 'Find Replace',
+              tooltip: btnNameFindReplace,
+              enable: () {
+                if (gDocs[gSelectedTabIndex] == null) {
+                  return false;
+                }
+                return (gSelectedTabIndex > 0 &&
+                    gDocs[gSelectedTabIndex]!.selectedTab == 2);
+              },
             ),
             VerticalDivider(
               endIndent: 10,
               indent: 10,
               color: Theme.of(context).colorScheme.barIconColor,
             ),
-            const TooltipIcon(
+            TooltipIcon(
+              onTap: onToolbarBtnTap,
               icon: Icons.settings,
-              tooltip: 'Settings',
+              tooltip: btnNameSettings,
+              enable: () {
+                return true;
+              },
             ),
-            const TooltipIcon(
+            TooltipIcon(
+              onTap: onToolbarBtnTap,
               icon: Boxicons.bxl_github,
-              tooltip: 'Github Repository',
+              tooltip: btnNameGithubRepository,
+              enable: () {
+                return true;
+              },
             ),
           ],
         ),
@@ -495,9 +604,10 @@ class PageEditorState extends State<PageEditor> {
       pageBuilder: (context, index) => onTabWindowBuild(context, index),
       onPositionChange: (index) {
         gSelectedTabIndex = index;
-        print("current tab $index");
+        print("current main tab $index");
         gTabViewSetStateNotifier.value = "";
         gTabViewSetStateNotifier.value = "update TabBars' color";
+        gToolbarNotifier.value = 'update toolbar:${getRandomString(10)}';
       },
       //onScroll: (position) => print('$position'),
     );
@@ -545,8 +655,7 @@ class WidgetEditorState extends State<WidgetEditor> {
             style: BorderStyle.none,
           ),
         ),
-        fillColor: Colors.white
-    );
+        fillColor: Colors.white);
 
     var widgetEditor = Padding(
         // mouse cursor padding to TextFormField edge
@@ -561,6 +670,7 @@ class WidgetEditorState extends State<WidgetEditor> {
             gDocs[widget.tabIndex]!.edited = true;
             gTabViewSetStateNotifier.value = '';
             gTabViewSetStateNotifier.value = 'random data';
+            gToolbarNotifier.value = 'update toolbar:${getRandomString(10)}';
           },
           style: TextStyle(
             fontSize: 15.0,
@@ -939,45 +1049,11 @@ class WidgetEditorState extends State<WidgetEditor> {
         }
       },
       onPositionChange: (newIndex) {
+        print('current sub tab $newIndex');
         gDocs[widget.tabIndex]!.selectedTab = newIndex;
+        gToolbarNotifier.value = 'update toolbar:${getRandomString(10)}';
       },
       //onScroll: (position) => print('$position'),
-    );
-  }
-}
-
-// toolbar icon button
-class TooltipIcon extends StatelessWidget {
-  const TooltipIcon({
-    required this.icon,
-    required this.tooltip,
-    Key? key,
-  }) : super(key: key);
-
-  //PageEditor editor = PageEditor();
-  final IconData icon;
-  final String tooltip;
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: InkWell(
-        onTap: () {
-          onToolbarBtnTap(context, tooltip);
-        },
-        child: SizedBox(
-          width: 40,
-          height: 40,
-          child: Center(
-            child: Icon(
-              icon,
-              size: 25,
-              color: Theme.of(context).colorScheme.barIconColor,
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
@@ -993,73 +1069,68 @@ void openOneTvFile(BuildContext context) async {
   if (result == null) return;
 
   var toOpen = result.files.single.path.toString();
-  gNotifier.value = "";
-  gNotifier.value = 'open-file:$toOpen';
+  gEditorNotifier.value = "";
+  gEditorNotifier.value = 'open-file:$toOpen';
 }
 
-Map onToolbarBtnTap(BuildContext context, String btnName) {
-  Map result = {};
-
+void onToolbarBtnTap(BuildContext context, String btnName) {
   switch (btnName) {
-    case "New File":
+    case btnNameNewFile:
       {
-        gNotifier.value = "";
-        gNotifier.value = "new-file";
+        gEditorNotifier.value = "";
+        gEditorNotifier.value = "new-file";
       }
       break;
 
-    case "Open File":
+    case btnNameOpenFile:
       {
         openOneTvFile(context);
       }
       break;
 
-    case "Save File":
+    case btnNameSaveFile:
       {
-        gNotifier.value = "";
-        gNotifier.value = "save-file";
+        gEditorNotifier.value = "";
+        gEditorNotifier.value = "save-file";
+        gToolbarNotifier.value = 'update toolbar:${getRandomString(10)}';
       }
       break;
 
-    case "Change Password":
+    case btnNameChangePassword:
       {
-        gNotifier.value = "";
-        gNotifier.value = "change-password";
+        gEditorNotifier.value = "";
+        gEditorNotifier.value = "change-password";
       }
       break;
 
-    case "Undo":
+    case btnNameUndo:
       {}
       break;
 
-    case "Redo":
+    case btnNameRedo:
       {}
       break;
 
-    case "Find Replace":
+    case btnNameFindReplace:
       {}
       break;
 
-    case "Settings":
+    case btnNameSettings:
       {
         Navigator.pushNamed(context, '/pageSettings');
       }
       break;
 
-    case "Github Repository":
+    case btnNameGithubRepository:
       {
         launchURL('https://github.com/davidforest123/TextVault');
       }
       break;
 
     default:
-      {
-        //statements;
-      }
+      {}
       break;
   }
-
-  return result;
 }
 
 void utilPickDirectory(TextEditingController selectDir) async {
@@ -1070,42 +1141,3 @@ void utilPickDirectory(TextEditingController selectDir) async {
   }
   selectDir.text = selected;
 }
-
-/*
-// toolbar text button
-class TooltipText extends StatelessWidget {
-  const TooltipText({
-    required this.text,
-    required this.tooltip,
-    Key? key,
-  }) : super(key: key);
-  final String text;
-  final String tooltip;
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: InkWell(
-        onTap: () {
-          buttonOnTap(context, tooltip);
-        },
-        child: SizedBox(
-          width: 40,
-          height: 40,
-          child: Center(
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: 15.0,
-                color: Theme.of(context).colorScheme.barIconColor,
-                fontWeight: FontWeight.w800,
-                fontFamily: "Roboto",
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}*/
