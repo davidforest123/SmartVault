@@ -237,7 +237,7 @@ Map<int, Doc> gDocs = {
 
 int gSelectedTabIndex = 0;
 // message notifier between different widgets.
-final gEditorNotifier = ValueNotifier("");
+final gPageMainNotifier = ValueNotifier("");
 
 Config gConfig = Config();
 
@@ -275,8 +275,8 @@ Widget onTabBuild(BuildContext context, int index) {
                     size: 28,
                   ),
                   onPressed: () {
-                    gEditorNotifier.value = "";
-                    gEditorNotifier.value = "close-file:$index";
+                    gPageMainNotifier.value = "";
+                    gPageMainNotifier.value = "close-file:$index";
                   }),
             ))
       ],
@@ -309,8 +309,8 @@ Widget onTabWindowBuild(BuildContext context, int index) {
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             onTap: () {
-              gEditorNotifier.value = "";
-              gEditorNotifier.value = 'open-file:${gConfig.recentOpen[index]}';
+              gPageMainNotifier.value = "";
+              gPageMainNotifier.value = 'open-file:${gConfig.recentOpen[index]}';
             },
             child: Text(gConfig.recentOpen[index],
                 style: const TextStyle(
@@ -333,7 +333,7 @@ Widget onTabWindowBuild(BuildContext context, int index) {
   }
 }
 
-// editor page
+// main page
 class PageMain extends StatefulWidget {
   const PageMain({
     super.key,
@@ -347,7 +347,7 @@ class PageMainState extends State<PageMain> {
   @override
   void initState() {
     super.initState();
-    gEditorNotifier.addListener(update); // add listen callback for `gNotifier`
+    gPageMainNotifier.addListener(update); // add listen callback for `gNotifier`
 
     // Intercept the window close event, and decide whether to exit the
     // application according to the user's choice. This method only works
@@ -385,7 +385,7 @@ class PageMainState extends State<PageMain> {
 
   @override
   void dispose() {
-    gEditorNotifier
+    gPageMainNotifier
         .removeListener(update); // remove listen callback for `gNotifier`
     super.dispose();
   }
@@ -393,16 +393,16 @@ class PageMainState extends State<PageMain> {
 // listen callback of `gNotifier`
   void update() {
     //setState(() {});
-    if (gEditorNotifier.value == 'new-file') {
+    if (gPageMainNotifier.value == 'new-file') {
       addTab("untitled-${gDocs.length}.tv", "", "", "", 0);
-    } else if (gEditorNotifier.value.startsWith("open-file:")) {
-      var toOpenFilepath = gEditorNotifier.value.replaceAll("open-file:", "");
+    } else if (gPageMainNotifier.value.startsWith("open-file:")) {
+      var toOpenFilepath = gPageMainNotifier.value.replaceAll("open-file:", "");
       String basename = path.basename(File(toOpenFilepath).path);
       addTab(basename, "", "", toOpenFilepath, 1);
-    } else if (gEditorNotifier.value.startsWith("close-file:")) {
-      var toRemoveIdx = gEditorNotifier.value.replaceAll("close-file:", "");
+    } else if (gPageMainNotifier.value.startsWith("close-file:")) {
+      var toRemoveIdx = gPageMainNotifier.value.replaceAll("close-file:", "");
       delTab(int.parse(toRemoveIdx));
-    } else if (gEditorNotifier.value == 'change-password') {
+    } else if (gPageMainNotifier.value == 'change-password') {
       if (gSelectedTabIndex >= 1 &&
           gDocs[gSelectedTabIndex]!.selectedTab == 2) {
         // `setState` is necessary for switching tab right now
@@ -410,7 +410,7 @@ class PageMainState extends State<PageMain> {
           gDocs[gSelectedTabIndex]!.selectedTab = 3;
         });
       }
-    } else if (gEditorNotifier.value == 'save-file') {
+    } else if (gPageMainNotifier.value == 'save-file') {
       // ignore 'Recent Open' page
       if (gSelectedTabIndex == 0) {
         return;
@@ -1069,16 +1069,16 @@ void openOneTvFile(BuildContext context) async {
   if (result == null) return;
 
   var toOpen = result.files.single.path.toString();
-  gEditorNotifier.value = "";
-  gEditorNotifier.value = 'open-file:$toOpen';
+  gPageMainNotifier.value = "";
+  gPageMainNotifier.value = 'open-file:$toOpen';
 }
 
 void onToolbarBtnTap(BuildContext context, String btnName) {
   switch (btnName) {
     case btnNameNewFile:
       {
-        gEditorNotifier.value = "";
-        gEditorNotifier.value = "new-file";
+        gPageMainNotifier.value = "";
+        gPageMainNotifier.value = "new-file";
       }
       break;
 
@@ -1090,16 +1090,16 @@ void onToolbarBtnTap(BuildContext context, String btnName) {
 
     case btnNameSaveFile:
       {
-        gEditorNotifier.value = "";
-        gEditorNotifier.value = "save-file";
+        gPageMainNotifier.value = "";
+        gPageMainNotifier.value = "save-file";
         gToolbarNotifier.value = 'update toolbar:${getRandomString(10)}';
       }
       break;
 
     case btnNameChangePassword:
       {
-        gEditorNotifier.value = "";
-        gEditorNotifier.value = "change-password";
+        gPageMainNotifier.value = "";
+        gPageMainNotifier.value = "change-password";
       }
       break;
 
