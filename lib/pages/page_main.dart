@@ -334,16 +334,16 @@ Widget onTabWindowBuild(BuildContext context, int index) {
 }
 
 // editor page
-class PageEditor extends StatefulWidget {
-  const PageEditor({
+class PageMain extends StatefulWidget {
+  const PageMain({
     super.key,
   });
 
   @override
-  PageEditorState createState() => PageEditorState();
+  PageMainState createState() => PageMainState();
 }
 
-class PageEditorState extends State<PageEditor> {
+class PageMainState extends State<PageMain> {
   @override
   void initState() {
     super.initState();

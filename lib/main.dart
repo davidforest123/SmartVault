@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:textvault/pages/page_editor.dart';
+import 'package:textvault/pages/page_main.dart';
 import 'package:textvault/pages/page_settings.dart';
 import 'package:textvault/theme/color.dart';
 
@@ -35,8 +35,8 @@ class TextVaultApp extends StatelessWidget {
       initialRoute: '/',
       // When navigating to a route, build the corresponding page.
       routes: {
-        '/': (context) => PageEditor(),
-        '/pageSettings': (context) => PageSettings(),
+        '/': (context) => const PageMain(),
+        '/pageSettings': (context) => const PageSettings(),
       },
     );
   }
