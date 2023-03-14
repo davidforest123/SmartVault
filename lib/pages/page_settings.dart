@@ -24,6 +24,8 @@ class PageSettingsState extends State<PageSettings> {
 
   int lockScreenTime = 0;
 
+  bool enableFileAssociate = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,27 +60,27 @@ class PageSettingsState extends State<PageSettings> {
                 ],
               ),
             ),
-            /*Padding(
+            Padding(
               padding: const EdgeInsets.only(
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Dark Theme',
+                    'Associate *.tv Files',
                   ),
                   Switch(
-                    value: enableDarkTheme,
+                    value: enableFileAssociate,
                     activeColor: const Color(0xFF6200EE),
                     onChanged: (bool newValue) {
                       setState(() {
-                        enableDarkTheme = newValue;
+                        enableFileAssociate = newValue;
                       });
                     },
                   )
                 ],
               ),
-            ),*/
+            ),
             Padding(
               padding: const EdgeInsets.only(
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
