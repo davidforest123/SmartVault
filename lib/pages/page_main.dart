@@ -54,7 +54,7 @@ class _HistoryItem {
   int cursorPos;
 }
 
-class History {
+class _History {
   final List<_HistoryItem> _items = [];
   int _currVer = -1;
   final int _maxUndo = 50;
@@ -84,6 +84,7 @@ class History {
 
   clearAll() {
     _items.clear();
+    _currVer = -1;
   }
 
   bool canUndo() {
@@ -106,7 +107,7 @@ class History {
   }
 
   bool canRedo() {
-    return _currVer < _items.length - 1;
+    return _currVer >= 0 && _currVer < _items.length - 1;
   }
 
   RetHistoryItem redo() {
@@ -138,7 +139,7 @@ class Doc {
   String filepath;
   String password;
 
-  var history = History();
+  final _history = _History();
   var ctrlPageCreateFileName = TextEditingController(text: "");
   var ctrlPageCreateFileSelectDir = TextEditingController();
   var ctrlPageCreateFilePwd = TextEditingController();
@@ -268,7 +269,38 @@ class Doc {
         }
     }
 
+    // add first version to history list
+    if (errMsg.isEmpty && _history._items.isEmpty) {
+      _history.onChanged(content, 0);
+    }
+
     return errMsg;
+  }
+
+  historyOnChanged(String content, int cursorPos) {
+    _history.onChanged(content, cursorPos);
+  }
+
+  historyClearAndKeepLatest() {
+    _history.clearAll();
+    // keep latest version to history list
+    _history.onChanged(content, ctrlContent.selection.baseOffset);
+  }
+
+  bool historyCanUndo() {
+    return _history.canUndo();
+  }
+
+  RetHistoryItem historyUndo() {
+    return _history.undo();
+  }
+
+  bool historyCanRedo() {
+    return _history.canRedo();
+  }
+
+  RetHistoryItem historyRedo() {
+    return _history.redo();
   }
 }
 
@@ -526,6 +558,9 @@ class PageMainState extends State<PageMain> {
         showAlertDialog(context, "Can't Save File", errMsg, "OK");
         return;
       }
+
+      gDocs[gSelectedTabIndex]!.historyClearAndKeepLatest();
+      gToolbarNotifier.value = 'update toolbar:${getRandomString(10)}';
     }
   }
 
@@ -649,7 +684,7 @@ class PageMainState extends State<PageMain> {
                 }
                 return (gSelectedTabIndex > 0 &&
                     gDocs[gSelectedTabIndex]!.selectedTab == 2 &&
-                    gDocs[gSelectedTabIndex]!.history.canUndo());
+                    gDocs[gSelectedTabIndex]!.historyCanUndo());
               },
             ),
             TooltipIcon(
@@ -662,7 +697,7 @@ class PageMainState extends State<PageMain> {
                 }
                 return (gSelectedTabIndex > 0 &&
                     gDocs[gSelectedTabIndex]!.selectedTab == 2 &&
-                    gDocs[gSelectedTabIndex]!.history.canRedo());
+                    gDocs[gSelectedTabIndex]!.historyCanRedo());
               },
             ),
             TooltipIcon(
@@ -774,7 +809,7 @@ class WidgetEditorState extends State<WidgetEditor> {
             gDocs[widget.tabIndex]!.content =
                 newText; // this is necessary to keep text of TextFormField when resize window.
             gDocs[widget.tabIndex]!.edited = true;
-            gDocs[widget.tabIndex]!.history.onChanged(newText,
+            gDocs[widget.tabIndex]!.historyOnChanged(newText,
                 gDocs[widget.tabIndex]!.ctrlContent.selection.baseOffset);
 
             gTabViewSetStateNotifier.value = '';
@@ -1162,7 +1197,6 @@ class WidgetEditorState extends State<WidgetEditor> {
         gDocs[widget.tabIndex]!.selectedTab = newIndex;
         gToolbarNotifier.value = 'update toolbar:${getRandomString(10)}';
       },
-      //onScroll: (position) => print('$position'),
     );
   }
 }
@@ -1201,7 +1235,6 @@ void onToolbarBtnTap(BuildContext context, String btnName) {
       {
         gPageMainNotifier.value = "";
         gPageMainNotifier.value = "save-file";
-        gToolbarNotifier.value = 'update toolbar:${getRandomString(10)}';
       }
       break;
 
@@ -1214,7 +1247,7 @@ void onToolbarBtnTap(BuildContext context, String btnName) {
 
     case btnNameUndo:
       {
-        var ret = gDocs[gSelectedTabIndex]!.history.undo();
+        var ret = gDocs[gSelectedTabIndex]!.historyUndo();
         if (ret.isOk) {
           gDocs[gSelectedTabIndex]!.ctrlContent.text = ret.content;
           gDocs[gSelectedTabIndex]!.ctrlContent.selection =
@@ -1226,7 +1259,7 @@ void onToolbarBtnTap(BuildContext context, String btnName) {
 
     case btnNameRedo:
       {
-        var ret = gDocs[gSelectedTabIndex]!.history.redo();
+        var ret = gDocs[gSelectedTabIndex]!.historyRedo();
         if (ret.isOk) {
           gDocs[gSelectedTabIndex]!.ctrlContent.text = ret.content;
           gDocs[gSelectedTabIndex]!.ctrlContent.selection =
