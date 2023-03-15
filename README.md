@@ -24,3 +24,21 @@ macOS, Windows, Linux for now.
 |----------|-----------|--------------------------|
 | $Version |    \n     | $CipherText              |
 
+## TODO
+
+Implement `Find Replace`.
+
+Implement `Settings` page.
+
+Implement save check when clicking 'Quit' menu.
+
+Implement automatically move to the application directory and create a shortcut.
+
+Fix `A RenderFlex overflowed by xx pixels on the right`.
+
+Fix the cursor disappearing problem at the beginning of the line when scrollbar is displayed.
+
+Fix file read error sometimes.
+
+Fix config write error sometimes.
+
