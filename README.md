@@ -6,9 +6,9 @@ Encrypted text editor that protects privacy.
 
 ```
 flutter pub get // Install dependencies
-flutter build macos // Compile on macOS
-flutter build linux // Compile on linux
-flutter build windows // Compile on windows
+flutter build macos // Execute this command when on macOS
+flutter build linux // Execute this command when on Linux
+flutter build windows // Execute this command when on Windows
 ```
 It is recommended that you download the source code and compile it yourself, this is the safest way to get TextVault.
 
