@@ -38,6 +38,93 @@ const btnNameFindReplace = 'Find Replace';
 const btnNameSettings = 'Settings';
 const btnNameGithubRepository = 'Github Repository';
 
+class RetHistoryItem {
+  bool isOk = false;
+  String content = '';
+  int cursorPos = 0;
+}
+
+class _HistoryItem {
+  _HistoryItem({
+    required this.content,
+    required this.cursorPos,
+  });
+
+  String content;
+  int cursorPos;
+}
+
+class History {
+  final List<_HistoryItem> _items = [];
+  int _currVer = -1;
+  final int _maxUndo = 50;
+
+  onChanged(String content, int cursorPos) {
+    // if length greater or equal to max limit, remove some oldest elements.
+    for (; _items.length >= _maxUndo;) {
+      _items.removeAt(0);
+    }
+
+    // if content didn't be changed, no need to do anything.
+    if (_items.isNotEmpty &&
+        _currVer >= 0 &&
+        _items.elementAt(_currVer).content == content) {
+      return;
+    }
+
+    // remove all elements after `_currVer`
+    for (; _items.length - 1 > _currVer;) {
+      _items.removeLast();
+    }
+
+    // add new element
+    _items.add(_HistoryItem(content: content, cursorPos: cursorPos));
+    _currVer = _items.length - 1;
+  }
+
+  clearAll() {
+    _items.clear();
+  }
+
+  bool canUndo() {
+    return _currVer > 0;
+  }
+
+  RetHistoryItem undo() {
+    RetHistoryItem ret = RetHistoryItem();
+
+    if (!canUndo()) {
+      ret.isOk = false;
+      return ret;
+    }
+
+    _currVer--;
+    ret.isOk = true;
+    ret.content = _items.elementAt(_currVer).content;
+    ret.cursorPos = _items.elementAt(_currVer).cursorPos;
+    return ret;
+  }
+
+  bool canRedo() {
+    return _currVer < _items.length - 1;
+  }
+
+  RetHistoryItem redo() {
+    RetHistoryItem ret = RetHistoryItem();
+
+    if (!canRedo()) {
+      ret.isOk = false;
+      return ret;
+    }
+
+    _currVer++;
+    ret.isOk = true;
+    ret.content = _items.elementAt(_currVer).content;
+    ret.cursorPos = _items.elementAt(_currVer).cursorPos;
+    return ret;
+  }
+}
+
 class Doc {
   Doc({
     required this.filename,
@@ -51,6 +138,7 @@ class Doc {
   String filepath;
   String password;
 
+  var history = History();
   var ctrlPageCreateFileName = TextEditingController(text: "");
   var ctrlPageCreateFileSelectDir = TextEditingController();
   var ctrlPageCreateFilePwd = TextEditingController();
@@ -310,7 +398,8 @@ Widget onTabWindowBuild(BuildContext context, int index) {
           child: GestureDetector(
             onTap: () {
               gPageMainNotifier.value = "";
-              gPageMainNotifier.value = 'open-file:${gConfig.recentOpen[index]}';
+              gPageMainNotifier.value =
+                  'open-file:${gConfig.recentOpen[index]}';
             },
             child: Text(gConfig.recentOpen[index],
                 style: const TextStyle(
@@ -347,7 +436,8 @@ class PageMainState extends State<PageMain> {
   @override
   void initState() {
     super.initState();
-    gPageMainNotifier.addListener(update); // add listen callback for `gNotifier`
+    gPageMainNotifier
+        .addListener(update); // add listen callback for `gPageMainNotifier`
 
     // Intercept the window close event, and decide whether to exit the
     // application according to the user's choice. This method only works
@@ -385,12 +475,12 @@ class PageMainState extends State<PageMain> {
 
   @override
   void dispose() {
-    gPageMainNotifier
-        .removeListener(update); // remove listen callback for `gNotifier`
+    gPageMainNotifier.removeListener(
+        update); // remove listen callback for `gPageMainNotifier`
     super.dispose();
   }
 
-// listen callback of `gNotifier`
+// listen callback of `gPageMainNotifier`
   void update() {
     //setState(() {});
     if (gPageMainNotifier.value == 'new-file') {
@@ -401,7 +491,21 @@ class PageMainState extends State<PageMain> {
       addTab(basename, "", "", toOpenFilepath, 1);
     } else if (gPageMainNotifier.value.startsWith("close-file:")) {
       var toRemoveIdx = gPageMainNotifier.value.replaceAll("close-file:", "");
-      delTab(int.parse(toRemoveIdx));
+      if (gDocs[int.parse(toRemoveIdx)]!.edited) {
+        showChoiceDialog(
+            context,
+            "Close Tab Warning",
+            'Current document has been edited, do you really want to close it without saving?',
+            ['Close', 'Don\'t Close']).then((choice) {
+          // `choice` is from `Navigator.of(context).pop` in showChoiceDialog implement.
+          if (choice == 'Close') {
+            delTab(int.parse(toRemoveIdx));
+          }
+        });
+      } else {
+        // close tab
+        delTab(int.parse(toRemoveIdx));
+      }
     } else if (gPageMainNotifier.value == 'change-password') {
       if (gSelectedTabIndex >= 1 &&
           gDocs[gSelectedTabIndex]!.selectedTab == 2) {
@@ -544,7 +648,8 @@ class PageMainState extends State<PageMain> {
                   return false;
                 }
                 return (gSelectedTabIndex > 0 &&
-                    gDocs[gSelectedTabIndex]!.selectedTab == 2);
+                    gDocs[gSelectedTabIndex]!.selectedTab == 2 &&
+                    gDocs[gSelectedTabIndex]!.history.canUndo());
               },
             ),
             TooltipIcon(
@@ -556,7 +661,8 @@ class PageMainState extends State<PageMain> {
                   return false;
                 }
                 return (gSelectedTabIndex > 0 &&
-                    gDocs[gSelectedTabIndex]!.selectedTab == 2);
+                    gDocs[gSelectedTabIndex]!.selectedTab == 2 &&
+                    gDocs[gSelectedTabIndex]!.history.canRedo());
               },
             ),
             TooltipIcon(
@@ -668,6 +774,9 @@ class WidgetEditorState extends State<WidgetEditor> {
             gDocs[widget.tabIndex]!.content =
                 newText; // this is necessary to keep text of TextFormField when resize window.
             gDocs[widget.tabIndex]!.edited = true;
+            gDocs[widget.tabIndex]!.history.onChanged(newText,
+                gDocs[widget.tabIndex]!.ctrlContent.selection.baseOffset);
+
             gTabViewSetStateNotifier.value = '';
             gTabViewSetStateNotifier.value = 'random data';
             gToolbarNotifier.value = 'update toolbar:${getRandomString(10)}';
@@ -1104,11 +1213,27 @@ void onToolbarBtnTap(BuildContext context, String btnName) {
       break;
 
     case btnNameUndo:
-      {}
+      {
+        var ret = gDocs[gSelectedTabIndex]!.history.undo();
+        if (ret.isOk) {
+          gDocs[gSelectedTabIndex]!.ctrlContent.text = ret.content;
+          gDocs[gSelectedTabIndex]!.ctrlContent.selection =
+              TextSelection.collapsed(offset: ret.cursorPos);
+        }
+        gToolbarNotifier.value = 'update toolbar:${getRandomString(10)}';
+      }
       break;
 
     case btnNameRedo:
-      {}
+      {
+        var ret = gDocs[gSelectedTabIndex]!.history.redo();
+        if (ret.isOk) {
+          gDocs[gSelectedTabIndex]!.ctrlContent.text = ret.content;
+          gDocs[gSelectedTabIndex]!.ctrlContent.selection =
+              TextSelection.collapsed(offset: ret.cursorPos);
+        }
+        gToolbarNotifier.value = 'update toolbar:${getRandomString(10)}';
+      }
       break;
 
     case btnNameFindReplace:
